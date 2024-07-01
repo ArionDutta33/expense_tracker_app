@@ -1,3 +1,5 @@
+import 'dart:math';
+import 'package:expense_tracker_app/widgets/chart/chart.dart';
 import 'package:expense_tracker_app/widgets/expenses_list/expenses_list.dart';
 import 'package:expense_tracker_app/models/expense.dart';
 import 'package:expense_tracker_app/widgets/new_expesnse.dart';
@@ -13,6 +15,7 @@ class Expenses extends StatefulWidget {
 class _ExpensesState extends State<Expenses> {
   void _openOverlay() {
     showModalBottomSheet(
+      isScrollControlled: true,
       context: context,
       builder: (context) => NewExpense(
         onAddExpense: _addExpense,
@@ -24,6 +27,30 @@ class _ExpensesState extends State<Expenses> {
     setState(() {
       _registeredExpenses.add(expense);
     });
+  }
+
+  void _removeExpnese(Expense expense) {
+    final expenseIndex = _registeredExpenses.indexOf(expense);
+    setState(() {
+      _registeredExpenses.remove(expense);
+    });
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        action: SnackBarAction(
+          label: "Undo",
+          onPressed: () {
+            setState(
+              () {
+                _registeredExpenses.insert(expenseIndex, expense);
+              },
+            );
+          },
+        ),
+        duration: const Duration(seconds: 3),
+        content: const Text("Expense deleted"),
+      ),
+    );
   }
 
   final List<Expense> _registeredExpenses = [
@@ -54,18 +81,29 @@ class _ExpensesState extends State<Expenses> {
   ];
   @override
   Widget build(BuildContext context) {
+    Widget mainContent = const Center(
+      child: Text("No expenses found. Start adding some"),
+    );
+    if (_registeredExpenses.isNotEmpty) {
+      mainContent = ExpensesList(
+        expenses: _registeredExpenses,
+        onRemove: _removeExpnese,
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text("Flutter Expense Tracker"),
         actions: [
-          IconButton(
-              onPressed: () => _openOverlay(), icon: const Icon(Icons.add))
+          IconButton(onPressed: _openOverlay, icon: const Icon(Icons.add))
         ],
       ),
       body: Column(
         children: [
+          Chart(
+            expenses: _registeredExpenses,
+          ),
           Expanded(
-            child: ExpensesList(expenses: _registeredExpenses),
+            child: mainContent,
           )
         ],
       ),
