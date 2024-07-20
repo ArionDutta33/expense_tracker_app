@@ -15,6 +15,7 @@ class Expenses extends StatefulWidget {
 class _ExpensesState extends State<Expenses> {
   void _openOverlay() {
     showModalBottomSheet(
+      useSafeArea: true,
       isScrollControlled: true,
       context: context,
       builder: (context) => NewExpense(

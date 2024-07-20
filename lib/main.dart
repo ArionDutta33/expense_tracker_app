@@ -9,6 +9,7 @@ var kDarkColorScheme = ColorScheme.fromSeed(
 void main() {
   runApp(
     MaterialApp(
+      debugShowMaterialGrid: false,
       darkTheme: ThemeData.dark().copyWith(
           bottomSheetTheme: const BottomSheetThemeData()
               .copyWith(backgroundColor: kDarkColorScheme.primaryContainer),
